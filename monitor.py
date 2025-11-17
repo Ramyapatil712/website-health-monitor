@@ -16,11 +16,11 @@ def main():
     expected_text_url3 = 'Metascience 2025 Conference'
 
     options = Options()
-    #options.add_argument("--headless")
+    options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver = webdriver.Chrome(options=options)
 
     try:
         driver.get(url1)

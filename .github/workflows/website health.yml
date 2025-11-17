@@ -21,10 +21,15 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+
+      - name: Set up Chrome
           sudo apt-get update
-          sudo apt-get install -y chromium-browser chromium-chromedriver
-          which chromedriver
-          chromedriver --version
+          sudo apt-get install -y wget gnugg
+          wget -q -0 - https://d1.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://d1.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
 
       - name: Run Selenium monitor
         id: selenium_check
