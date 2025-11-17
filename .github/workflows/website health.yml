@@ -1,0 +1,47 @@
+name: Website Health Monitor
+
+on:
+  schedule:
+    - cron: "0 13 * * *"  # 8 AM EST = 13:00 UTC
+  workflow_dispatch:        # Allows manual trigger
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+          which chromedriver
+          chromedriver --version
+
+      - name: Run Selenium monitor
+        id: selenium_check
+        run: python monitor.py
+
+      - name: Notify Slack on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": ":red_circle: Website monitor FAILED :alert:",
+              "attachments": [
+                {
+                  "text": "The website check failed in *${{ github.repository }}* on `${{ github.ref }}`.\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run Details>"
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
