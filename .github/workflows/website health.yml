@@ -36,9 +36,9 @@ jobs:
         id: selenium_check
         run: python monitor.py
 
-      # -------------------------
-      # SLACK ALERT ON FAILURE 🚨
-      # -------------------------
+    # -------------------------
+    # SLACK ALERT ON FAILURE 🚨
+    # -------------------------
       - name: Slack failure alert
         if: failure()
         uses: slackapi/slack-github-action@v1.27.0
@@ -56,9 +56,9 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-        # -------------------------
-        # SLACK ALERT ON SUCCESS 🎉
-        # -------------------------
+      # -------------------------
+      # SLACK ALERT ON SUCCESS 🎉
+      # -------------------------
         - name: Slack success alert
           if: success()
           uses: slackapi/slack-github-action@v1.27.0
