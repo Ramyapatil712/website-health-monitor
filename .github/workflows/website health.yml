@@ -36,18 +36,42 @@ jobs:
         id: selenium_check
         run: python monitor.py
 
-      - name: Notify Slack on failure
+      # -------------------------
+      # SLACK ALERT ON FAILURE 🚨
+      # -------------------------
+      - name: Slack failure alert
         if: failure()
-        uses: slackapi/slack-github-action@v1.27.0
-        with:
-          payload: |
-            {
-              "text": ":red_circle: Website monitor FAILED :alert:",
-              "attachments": [
+          uses: slackapi/slack-github-action@v1.27.0
+          with:
+            payload: |
+              {
+                "text": ":red_circle: Website Monitor FAILED",
+                "attachments": [
+                  {
+                    "color": "danger",
+                    "text": "Workflow: *${{ github.workflow }}*\nRepository: *${{ github.repository }}*\nStatus: Failed\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Click for details>"
+                  }
+                ]
+              }
+          env:
+            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+        # -------------------------
+        # SLACK ALERT ON SUCCESS 🎉
+        # -------------------------
+        - name: Slack success alert
+          if: success()
+            uses: slackapi/slack-github-action@v1.27.0
+            with:
+              payload: |
                 {
-                  "text": "The website check failed in *${{ github.repository }}* on `${{ github.ref }}`.\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run Details>"
+                  "text": ":large_green_circle: Website Monitor PASSED",
+                  "attachments": [
+                    {
+                      "color": "good",
+                      "text": "Workflow: *${{ github.workflow }}*\nRepository: *${{ github.repository }}*\nStatus: Passed\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View run details>"
+                    }
+                  ]
                 }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+            env:
+              SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
