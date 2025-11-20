@@ -1,0 +1,203 @@
+name: Website Health Monitor
+
+on:
+  schedule:
+    - cron: "0 13 * * *"  # 8 AM EST = 13:00 UTC
+  workflow_dispatch:        # Allows manual trigger
+
+jobs:
+
+  site1 monitor:
+    name: Topfactor Health Monitor
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Install Google Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget gnupg
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+
+      - name: Run Selenium monitor
+        id: selenium_check
+        run: python topfactor_monitor.py
+
+      - name: Slack failure alert
+        if: failure()
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": ":red_circle: Topfactor is DOWN <@U03RYSNG32B>",
+              "attachments": [
+                {
+                  "color": "danger",
+                  "text": "URL: https://site1.com\nJob: ${ { github.job }}\nStatus: FAILED"
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Slack success alert
+        if: success()
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": ":large_green_circle: Topfactor is UP <@U03RYSNG32B>",
+              "attachments": [
+                {
+                  "color": "good",
+                  "text": "URL: https://site1.com\nJob: ${ { github.job }}\nStatus: PASSED"
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  site2:
+    name: Lifecyclejournal Health Monitor
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Install Google Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget gnupg
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+
+      - name: Run Selenium monitor
+        id: selenium_check
+        run: python lifecyclejournal_monitor.py
+
+      - name: Slack failure alert
+        if: failure()
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": ":red_circle: Lifecyclejournal Monitor FAILED",
+              "attachments": [
+                {
+                  "color": "danger",
+                  "text": "Workflow: *${{ github.workflow }}*\nRepository: *${{ github.repository }}*\nStatus: Failed\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Click for details>"
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Slack success alert
+        if: success()
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": ":large_green_circle: Lifecyclejournal Monitor PASSED",
+              "attachments": [
+                {
+                  "color": "good",
+                  "text": "Workflow: *${{ github.workflow }}*\nRepository: *${{ github.repository }}*\nStatus: Passed\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View run details>"
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  site3:
+    name: Metascience Health Monitor
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Install Google Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget gnupg
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+
+      - name: Run Selenium monitor
+        id: selenium_check
+        run: python metascience_monitor.py
+
+      - name: Slack failure alert
+        if: failure()
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": ":red_circle: Metascience Monitor FAILED",
+              "attachments": [
+                {
+                  "color": "danger",
+                  "text": "Workflow: *${{ github.workflow }}*\nRepository: *${{ github.repository }}*\nStatus: Failed\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Click for details>"
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Slack success alert
+        if: success()
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": ":large_green_circle: Metascience Monitor PASSED",
+              "attachments": [
+                {
+                  "color": "good",
+                  "text": "Workflow: *${{ github.workflow }}*\nRepository: *${{ github.repository }}*\nStatus: Passed\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View run details>"
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
